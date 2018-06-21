@@ -18,7 +18,8 @@ class WhatsBlaster:
         self.driver.close()
 
     def forward_message(self, contact_names):
-        input("Select your message to forward, then click ENTER here.")
+        input("Select your message to forward, open the pop-up list," +
+                " then click ENTER here.")
         driver = self.driver
 
         fails = []
@@ -26,7 +27,7 @@ class WhatsBlaster:
             popup_box = driver.find_element_by_css_selector("div[data-animate-modal-popup='true']")
             search = driver.find_element_by_css_selector("input[title='Search\u2026']")
             search.send_keys(contact_name)
-            time.sleep(2)
+            time.sleep(1)
             try:
                 popup_box.find_element_by_css_selector(
                                 "span[title='{}']".format(contact_name)
