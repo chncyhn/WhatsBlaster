@@ -11,12 +11,42 @@ class WhatsBlaster:
         options.add_argument("--force-device-scale-factor=1")
         self.driver = webdriver.Chrome(chromedriver_path, chrome_options=options)
         self.driver.get("https://web.whatsapp.com")
-        print "Login, and wait for app to load."
-        raw_input("Then, hit enter to continue. ")
+        print("Login, and wait for app to load." )
+        input("Then, hit enter to continue. ")
 
     def close(self):
         self.driver.close()
-    
+
+    def forward_message(self, contact_names):
+        input("Select your message to forward, then click ENTER here.")
+        driver = self.driver
+
+        fails = []
+        for contact_name in contact_names:
+            popup_box = driver.find_element_by_css_selector("div[data-animate-modal-popup='true']")
+            search = driver.find_element_by_css_selector("input[title='Search\u2026']")
+            search.send_keys(contact_name)
+            time.sleep(2)
+            try:
+                popup_box.find_element_by_css_selector(
+                                "span[title='{}']".format(contact_name)
+                                ).click()
+            except:
+                print("Failure: could not find contact {}.".format(contact_name))
+                fails.append(contact_name)
+
+            search.clear()
+            time.sleep(2)
+
+        popup_box = driver.find_element_by_css_selector("div[data-animate-modal-popup='true']")
+        send_button = popup_box.find_element_by_css_selector("span[data-icon='send-light']")
+        send_button.click()
+        time.sleep(10)
+        if fails:
+            return "Failed to send " + ",".join(fails)
+        else:
+            return "All successfully sent."
+
     def send_message(self, contact_name, message, timeout=10):
         driver = self.driver
         # Find contact
@@ -52,9 +82,3 @@ class WhatsBlaster:
                 return "Success: sent to {}.".format(contact_name)
             time.sleep(1)
         return "Message to {} may not have been sent.".format(contact_name)
-
-
-if __name__ == '__main__':
-    W = WhatsBlaster('./chromedriver')
-    print W.send_message("Mickey Mouse", "Hello!")
-    W.close()
